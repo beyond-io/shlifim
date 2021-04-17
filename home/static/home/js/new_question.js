@@ -1,7 +1,19 @@
 function disableAllSubSubject() {
+    ID_Sub_Subject.value = ""
     for (let i = 0; i < ID_Sub_Subject.length; i++) {
         if (i !== 0) {
             ID_Sub_Subject[i].style.display = 'none';
+        }
+    }
+}
+
+function disableAllBooks() {
+    ID_Book.value = "";
+    ID_Book_Page.value = "";
+    ID_Book_Page.disabled = true;
+    for (let i = 0; i < ID_Book.length; i++) {
+        if (i !== 0) {
+            ID_Book[i].style.display = 'none';
         }
     }
 }
@@ -78,15 +90,6 @@ function showPhysicsSubSubjectsAndBooks() {
     ID_Book[11].style.display = "";
 }
 
-
-function disableAllBooks() {
-    for (let i = 0; i < ID_Book.length; i++) {
-        if (i !== 0) {
-            ID_Book[i].style.display = 'none';
-        }
-    }
-}
-
 let ID_Title = document.querySelector('#id_title');
 let ID_Subject = document.querySelector('#id_subject');
 let ID_Sub_Subject = document.querySelector('#id_sub_subject');
@@ -99,10 +102,12 @@ disableAllSubSubject();
 disableAllBooks();
 ID_Book_Page.disabled = true;
 ID_Book_Page.min = 1;
+ID_Book_Page.max = 999;
 
 ID_Book.onchange = function () {
     if (ID_Book.value == "") {
         ID_Book_Page.disabled = true;
+        ID_Book_Page.value = "";
     }
     else {
         ID_Book_Page.disabled = false;
@@ -110,59 +115,39 @@ ID_Book.onchange = function () {
 }
 
 ID_Subject.onchange = function () {
+    disableAllBooks();
+    disableAllSubSubject();
     switch (ID_Subject.value) {
         case "1":   //  user chose "Bible"
-            disableAllBooks();
-            disableAllSubSubject();
             showBibleSubSubjectsAndBooks();
             break;
         case "2":   //  user chose "Biology"
-            disableAllBooks();
-            disableAllSubSubject();
             showBiologySubSubjectsAndBooks();
             break;
         case "3":   //  user chose "Chemistry"
-            disableAllBooks();
-            disableAllSubSubject();
             showChemistrySubSubjectsAndBooks();
             break;
         case "4":   //  user chose "English"
-            disableAllBooks();
-            disableAllSubSubject();
             showEnglishSubSubjectsAndBooks();
             break;
         case "5":   //  user chose "Geography"
-            disableAllBooks();
-            disableAllSubSubject();
             showGeographySubSubjectsAndBooks();
             break;
         case "6":   //  user chose "Litrature"
-            disableAllBooks();
-            disableAllSubSubject();
             showLitratureSubSubjectsAndBooks();
             break;
         case "7":   //  user chose "History"
-            disableAllBooks();
-            disableAllSubSubject();
             showHistorySubSubjectsAndBooks();
             break;
         case "8":   //  user chose "Hebrew"
-            disableAllBooks();
-            disableAllSubSubject();
             showHebrewSubSubjectsAndBooks();
             break;
         case "9":   //  user chose "Math"
-            disableAllBooks();
-            disableAllSubSubject();
             showMathSubSubjectsAndBooks();
             break;
         case "10":  //  user chose "Physics"
-            disableAllBooks();
-            disableAllSubSubject();
             showPhysicsSubSubjectsAndBooks();
             break;
         default:    //  user chose "----"
-            disableAllSubSubject();
-            disableAllBooks();
     }
 }

@@ -1,16 +1,15 @@
 {% extends "home/base.html" %}
-{% load static %}
 {% block content %}
 
-<body class="landing-bg">
-    <div class="newfrm" class="landing-bg">
-        <p class="newmsg">Please add a new question : </p>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Post">
-        </form>
-    </div>
-</body>
+<div class="newfrm" class="landing-bg">
+    <p class="newmsg">Please add a new question : </p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Post">
+    </form>
+    {% load static %}
+    <script src="{% static 'home/js/new_question.js' %}" type="text/javascript"></script>
+</div>
 
 {% endblock content %}
