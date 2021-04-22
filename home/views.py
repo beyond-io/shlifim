@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from .models import Question, Tag
+# from django_filters.views import FilterView
+from django.views.generic.list import ListView
 
 
 def about(request):
@@ -30,3 +32,10 @@ def tags(request):
     else:
         tags = Tag.tags_feed()
     return render(request, 'home/tags.html', {'tags': tags})
+
+
+class QuestionsListView(ListView):
+    model = Question
+    template_name = 'home/explore.html'
+    context_object_name = 'questions'
+    ordering = ['-publish_date']
