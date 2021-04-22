@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import Question, Tag
-from .models import Question
 from django_filters.views import FilterView
+from django.db.models import Count
 
 
 def about(request):
@@ -32,6 +32,7 @@ def tags(request):
     else:
         tags = Tag.tags_feed()
     return render(request, 'home/tags.html', {'tags': tags})
+
 
 class QuestionsListView(FilterView):
     model = Question
