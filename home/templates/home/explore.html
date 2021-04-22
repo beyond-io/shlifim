@@ -10,6 +10,19 @@
 <form method="GET" class="container">
 <div class="m-5" >
 
+    <div class="row mb-4">
+        <div  class="col">
+            <span class="m-3">Sort by </span>
+            <div class="btn-group" name="order_by" role="group" aria-label="Basic radio toggle button group" >
+              <input type="radio" class="btn-check" name="order_by" id="orderRadioBtnDate" autocomplete="off" value="-publish_date" onclick="this.form.submit()">
+              <label class="btn btn-outline-secondary" for="orderRadioBtnDate">Publish date</label>
+
+              <input type="radio" class="btn-check" name="order_by" id="orderRadioBtnAnswers" value=answersNum autocomplete="off" onclick="this.form.submit()">
+              <label class="btn btn-outline-secondary" for="orderRadioBtnAnswers">Answers number</label>
+           </div>
+        </div>
+    </div>
+
 	{% for question in questions %}
 	<div class=" question-display p-2 row m-0 border">
 	    <img class="subject-img" src="{% get_static_prefix %}home\subjects-images\{{question.subject|lower}}.png">
