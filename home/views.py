@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Question
 from django_filters.views import FilterView
+from django.db.models import Count
 
 
 def about(request):
@@ -20,3 +21,13 @@ class QuestionsListView(FilterView):
 
     def get_paginate_by(self, queryset):
         return self.request.GET.get("paginate_by", self.paginate_by)
+
+    def get_queryset(self):
+        items_set = Question.objects.all()
+        ordering = self.request.GET.get('order_by', '-publish_date')
+        if ordering == "answersNum":
+            items_set = items_set.annotate(answers_num=Count('answer')).order_by('-answers_num')
+        else:
+            items_set = items_set.order_by(ordering)
+
+        return items_set
