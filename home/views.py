@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Question
 from django_filters.views import FilterView
 from django.db.models import Count
+from .filters import QuestionFilter
 
 
 def about(request):
@@ -18,6 +19,7 @@ class QuestionsListView(FilterView):
     context_object_name = 'questions'
     ordering = ['-publish_date']
     paginate_by = 10
+    filterset_class = QuestionFilter
 
     def get_paginate_by(self, queryset):
         return self.request.GET.get("paginate_by", self.paginate_by)
@@ -30,4 +32,6 @@ class QuestionsListView(FilterView):
         else:
             items_set = items_set.order_by(ordering)
 
-        return items_set
+        items_set = QuestionFilter(self.request.GET, queryset=items_set)
+
+        return items_set.qs
