@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Question, Tag
 from django_filters.views import FilterView
 from django.db.models import Count
+from .filters import QuestionFilter
 
 
 def about(request):

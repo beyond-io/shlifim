@@ -23,6 +23,15 @@
         </div>
     </div>
 
+    <button class=" mb-3 btn btn-secondary" type="button" data-toggle="collapse" data-target="#search-question" aria-expanded="false" aria-controls="collapseExample">
+        Filter
+      </button>
+
+    <div class="row m-4 p-3 w-50 collapsed-bg collapse rounded" id="search-question">
+        {{ filter.form.as_p }}
+        <input class="col-2 btn shlifim-btn ml-2" type="submit" value="Search" />
+    </div>
+
 	{% for question in questions %}
 	<div class=" question-display p-2 row m-0 border">
 	    <img class="subject-img" src="{% get_static_prefix %}home\subjects-images\{{question.subject|lower}}.png">
