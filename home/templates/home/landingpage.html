@@ -10,33 +10,15 @@
          -o-background-size: cover;
          background-size: cover;
         }
-
-        .txt{
-            color:#593f27
-        }
-
-        .get_started_btn{
-            background-color:#593f27;
-            color:white;
-            padding: 15px 32px;
-            text-align: center;
-            font-size: 30px;
-            border: none;
-            text-decoration: none;
-        }
-        .get_started_btn:hover
-        {
-            text-decoration: none;
-        }
 </style>
 
+<link rel="stylesheet" type="text/css" href="{% static 'home/landing-page.css' %}">
 <body class="landing-bg">
     <div class="center">
          <img src="{% static 'home/animated-logo.gif' %}" alt="Shlifim Logo gif" class="row rounded mx-auto d-block my-5" >
         <div  class=" text-center">
             <h1 class="text-center font-weight-bold txt">Your place to Ask, Answer & Discover</h1>
                 <a href="{% url 'explore-page' %}" type="button" class="m-4 get_started_btn rounded-pill">Get Started</a>
-
         </div>
 
     </div>
