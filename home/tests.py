@@ -2,10 +2,10 @@ from home.models import Profile, Subject, Question, Tag, Question_Tag
 from django.contrib.auth.models import User
 from django.utils import timezone
 import pytest
-
-
-def test_first():
-    assert True
+from django.test import RequestFactory
+from django.urls import reverse
+from home.views import QuestionsListView
+from django.db.models import Count
 
 
 @pytest.mark.django_db
@@ -96,3 +96,45 @@ def question_tag_test_data(question_test_data):
     new_pair.tag = test_tag
     new_pair.save()
     return test_tag
+
+
+@pytest.mark.parametrize("question_id, expected_result", [
+    ("1", 1),
+    ("2", 1),
+    ("3", 0),
+    ("4", 0),
+])
+@pytest.mark.django_db
+def test_answers_num_func(question_id, expected_result):
+    question = Question.objects.get(id=question_id)
+    answers_num = question.get_answers_num()
+    assert answers_num == expected_result
+
+
+@pytest.fixture
+def factory():
+    return RequestFactory()
+
+
+@pytest.mark.django_db
+def test_explore_page_sort_by_answers_num(factory):
+    requested_result = Question.objects.all().annotate(answers_num=Count('answer')).order_by('-answers_num')
+
+    url = reverse('explore-page')
+    request = factory.get(url, {'order_by': 'answersNum'})
+    view = QuestionsListView()
+    view.setup(request)
+    view.object_list = view.get_queryset()
+    assert list(view.get_queryset()) == list(requested_result)
+
+
+@pytest.mark.django_db
+def test_explore_page_sort_by_publish_date(factory):
+    requested_result = Question.objects.all().order_by("-publish_date")
+
+    url = reverse('explore-page')
+    request = factory.get(url, {'order_by': '-publish_date'})
+    view = QuestionsListView()
+    view.setup(request)
+    view.object_list = view.get_queryset()
+    assert list(view.get_queryset()) == list(requested_result)
