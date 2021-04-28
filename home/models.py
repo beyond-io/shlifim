@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Gender(models.TextChoices):
@@ -79,7 +80,8 @@ class Question(models.Model):
     sub_subject = models.ForeignKey(Sub_Subject, on_delete=models.CASCADE, blank=True, null=True)  # field not required
     grade = models.CharField(max_length=2, choices=Grade.choices)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, null=True, blank=True)  # field not required
-    book_page = models.IntegerField(null=True, blank=True)  # field not required
+    book_page = models.IntegerField(null=True, blank=True,
+                                    validators=[MinValueValidator(1), MaxValueValidator(999)])  # field not required
     is_edited = models.BooleanField(default=False)
     tags = models.ManyToManyField('Tag', through='Question_Tag')
 
