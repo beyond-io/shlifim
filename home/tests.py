@@ -2,10 +2,7 @@ from home.models import Profile, Subject, Question, Tag, Question_Tag
 from django.contrib.auth.models import User
 from django.utils import timezone
 import pytest
-
-
-def test_first():
-    assert True
+from django.urls import reverse
 
 
 @pytest.mark.django_db
@@ -96,3 +93,16 @@ def question_tag_test_data(question_test_data):
     new_pair.tag = test_tag
     new_pair.save()
     return test_tag
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def explore_page_response(client):
+    url = reverse('explore-page')
+    response = client.get(url)
+    return response
+
+
+@pytest.mark.django_db
+def test_explore_page_is_paginated(explore_page_response):
+    assert (explore_page_response.context['is_paginated'] is True)
