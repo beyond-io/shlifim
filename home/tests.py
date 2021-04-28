@@ -1,4 +1,4 @@
-from home.models import Profile, Subject, Question, Tag, Answer, Question_Tag
+from home.models import Profile, Subject, Question, Tag, Question_Tag, Sub_Subject, Book, Answer
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import datetime
@@ -6,6 +6,8 @@ from django.db.models.query import QuerySet
 from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
 import pytest
+from django.test import RequestFactory
+from home.views import QuestionsListView
 
 
 class TestManyToManyFeature:
@@ -94,9 +96,9 @@ class TestDisplayQuestionFeature:
         def answers(self):
             profile = Profile.objects.first()
             question = Question.objects.get(id=3)
-            ans1 = Answer(profile=profile, question=question, content='Answer 1', publish_date=datetime(2021, 4, 1,),
+            ans1 = Answer(profile=profile, question=question, content='Answer 1', publish_date=datetime(2021, 4, 1, ),
                           likes_count=1, dislikes_count=0, is_edited=False)
-            ans2 = Answer(profile=profile, question=question, content='Answer 2', publish_date=datetime(2021, 4, 2,),
+            ans2 = Answer(profile=profile, question=question, content='Answer 2', publish_date=datetime(2021, 4, 2, ),
                           likes_count=0, dislikes_count=0, is_edited=False)
             ans1.save()
             ans2.save()
@@ -109,7 +111,7 @@ class TestDisplayQuestionFeature:
             """
             prev_thumb_val = answers[0].likes_count
             answers[0].thumb_up_answer()
-            assert(prev_thumb_val == answers[0].likes_count - 1)
+            assert (prev_thumb_val == answers[0].likes_count - 1)
 
         @pytest.mark.django_db
         def test_thumb_down_answer(self, answers):
@@ -118,7 +120,7 @@ class TestDisplayQuestionFeature:
             """
             prev_thumb_val = answers[0].dislikes_count
             answers[0].thumb_down_answer()
-            assert(prev_thumb_val == answers[0].dislikes_count - 1)
+            assert (prev_thumb_val == answers[0].dislikes_count - 1)
 
         @pytest.mark.django_db
         def test_set_is_edited(self, answers):
@@ -127,7 +129,7 @@ class TestDisplayQuestionFeature:
             """
             prev_is_edited_val = answers[0].is_edited
             answers[0].set_is_edited(not prev_is_edited_val)
-            assert(prev_is_edited_val != answers[0].is_edited)
+            assert (prev_is_edited_val != answers[0].is_edited)
 
         @pytest.mark.django_db
         @pytest.mark.parametrize('filterType, expected', [('date', 'Answer 2'), ('votes', 'Answer 1')])
@@ -149,7 +151,7 @@ class TestDisplayQuestionFeature:
             should return question subject and question title
             """
             question = Question.objects.get(id=1)
-            assert(question.get_question_title() == "Math-question from math course")
+            assert (question.get_question_title() == "Math-question from math course")
 
     class TestHTMLRelated:
         @pytest.mark.django_db
@@ -181,7 +183,7 @@ class TestDisplayQuestionFeature:
                 ('answersCount', '1'),
                 ('tags', ''),
                 ('title', 'Bible-question from bible course')
-                ]
+            ]
             for check, excepted in expectedPairs:
                 assert str(response.context[check]).startswith(excepted)
 
@@ -205,3 +207,137 @@ class TestTagsPage:
         url = reverse('tags')
         response = client.get(url)
         return response
+
+
+@pytest.mark.django_db
+def test_add_tags_to_question(question_test_data):
+    test_tags = ['test_tag_1', 'test_tag_2', 'test_tag_3']
+    question_test_data.add_tags_to_question(test_tags)
+
+    assert list(question_test_data.tags.values()) == [{'id': 5, 'tag_name': 'test_tag_1'},
+                                                      {'id': 6, 'tag_name': 'test_tag_2'},
+                                                      {'id': 7, 'tag_name': 'test_tag_3'}]
+
+
+@pytest.mark.django_db
+def test_field_questions_in_tag(question_tag_test_data):
+    assert question_tag_test_data.questions.values().count() == 1
+
+
+@pytest.mark.django_db
+def test_question_tag_table(question_test_data, question_tag_test_data):
+    assert Question_Tag.objects.filter(question=question_test_data, tag=question_tag_test_data).exists()
+
+
+@pytest.mark.django_db
+def test_add_tags_to_question_one_new_input(question_test_data, question_tag_test_data):
+    question_test_data.add_tags_to_question(['test_tag_2', 'test_tag_3'])
+    assert question_test_data.tags.values().count() == 2
+
+
+@pytest.mark.django_db
+def test_tags_feed_no_parameters():
+    assert Tag.tags_feed().count() == 4
+
+
+@pytest.mark.django_db
+def test_tags_feed_with_test_tag(tag_test_data):
+    assert tag_test_data.tags_feed().count() == 5
+
+
+@pytest.mark.django_db
+def test_tags_feed_with_filter(tag_test_data):
+    assert Tag.tags_feed('_t').count() == 1
+
+
+@pytest.mark.django_db
+def test_tags_feed_after_delete(tag_test_data):
+    Tag.objects.filter(tag_name='test_tag_1').delete()
+    assert Tag.tags_feed().count() == 4
+
+
+@pytest.mark.django_db
+def test_tags_feed_no_result():
+    assert Tag.tags_feed('testtesttesttest').count() == 0
+
+
+@pytest.fixture
+def question_test_data():
+    user = User.objects.get(username='Rebecca')
+    profile = Profile.objects.get(user=user)
+    subject = Subject.objects.get(subject_name='Physics')
+    question = Question(profile=profile,
+                        title='Question test data',
+                        content='Will this question test data pass?',
+                        publish_date=timezone.now(),
+                        subject=subject,
+                        sub_subject=None,
+                        grade='10',
+                        book=None,
+                        book_page=None,
+                        is_edited=False)
+    question.save()
+    return question
+
+
+@pytest.fixture
+def tag_test_data():
+    tag = Tag(tag_name='test_tag_1')
+    tag.save()
+    return tag
+
+
+@pytest.fixture
+def question_tag_test_data(question_test_data):
+    test_tag = Tag()
+    test_tag.tag_name = 'test_tag_2'
+    test_tag.save()
+    new_pair = Question_Tag()
+    new_pair.question = question_test_data
+    new_pair.tag = test_tag
+    new_pair.save()
+    return test_tag
+
+
+@pytest.fixture
+def factory():
+    return RequestFactory()
+
+
+@pytest.mark.django_db
+def test_explore_page_filter_by_subject(factory):
+    subject = Subject.objects.get(pk=1)
+    requested_result = Question.objects.all().filter(subject=subject)
+
+    url = reverse('explore-page')
+    request = factory.get(url, {'subject': 1})  # bible option
+    view = QuestionsListView()
+    view.setup(request)
+    view.object_list = view.get_queryset()
+    assert list(view.get_queryset()) == list(requested_result)
+
+
+@pytest.mark.django_db
+def test_explore_page_filter_by_sub_subject(factory):
+    sub_subject = Sub_Subject.objects.get(pk=2)
+    requested_result = Question.objects.all().filter(sub_subject=sub_subject)
+
+    url = reverse('explore-page')
+    request = factory.get(url, {'sub_subject': 2})
+    view = QuestionsListView()
+    view.setup(request)
+    view.object_list = view.get_queryset()
+    assert list(view.get_queryset()) == list(requested_result)
+
+
+@pytest.mark.django_db
+def test_explore_page_filter_by_book(factory):
+    book = Book.objects.get(pk=3)
+    requested_result = Question.objects.all().filter(book=book)
+
+    url = reverse('explore-page')
+    request = factory.get(url, {'book': 3})
+    view = QuestionsListView()
+    view.setup(request)
+    view.object_list = view.get_queryset()
+    assert list(view.get_queryset()) == list(requested_result)
