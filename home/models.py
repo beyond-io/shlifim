@@ -104,6 +104,9 @@ class Question(models.Model):
                 new_pair.tag = tag
                 new_pair.save()
 
+    def get_answers_num(self):
+        return self.answer_set.count()
+
 
 class Answer(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)

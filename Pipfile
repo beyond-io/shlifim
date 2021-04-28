@@ -7,10 +7,13 @@ verify_ssl = true
 flake8 = "*"
 pytest = "*"
 pytest-django = "*"
+djanago-filter = "*"
+django-filter = "*"
 
 [packages]
 django = "*"
 pytest = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.8"
