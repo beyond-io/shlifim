@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .models import Question
+from .models import Question, Profile
+from .forms import QuestionForm
 
 
 def about(request):
@@ -21,3 +22,17 @@ def displayQuestion(request, **kwargs):
         "title": question.get_question_title()
     }
     return render(request, 'home/question_detail.html', context)
+
+
+def new_question(request):
+    form = QuestionForm
+    if request.method == 'POST':
+        questForm = QuestionForm(request.POST)
+        if questForm.is_valid():
+            questForm = questForm.save(commit=False)
+            for currProfile in Profile.objects.all():
+                if (currProfile.user == request.user):
+                    questForm.profile = currProfile
+                    break
+            questForm.save()
+    return render(request, 'home/questions/new_question.html', {'form': form, 'title': 'New Question'})
