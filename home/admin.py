@@ -19,7 +19,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 class AnswerAdmin(admin.ModelAdmin):
     model = Answer
-    list_display = ("profile", "question", "content")
+    list_display = ("profile", "question", "show_content")
 
 
 admin.site.register(Profile)
