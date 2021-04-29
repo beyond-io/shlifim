@@ -156,6 +156,10 @@ class Answer(models.Model):
         from django.utils.html import strip_tags
         return strip_tags(self.content)
 
+    @classmethod
+    def get_answers_by_date(cls):
+        return cls.objects.order_by('-publish_date')
+
 
 class Tag(models.Model):
     tag_name = models.CharField(max_length=20)

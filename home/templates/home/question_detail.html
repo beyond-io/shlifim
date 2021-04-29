@@ -113,7 +113,7 @@
 	  <form method="POST" action="." class="commenting-form">
 		{% csrf_token %}
 		<div class="col-md-12">
-		  <div >
+		  <div id="comment-form">
 			{{ form }}
 			{{ form.media }}
 		  </div>
@@ -124,7 +124,7 @@
 	  </form>
 	</div>
 	{% else %}
-	<a href="#" class="btn btn-primary">Login to comment</a>
+	<a href="#" id="not-authenticated" class="btn btn-primary">Login to comment</a>
 	{% endif %}
   </div>
 </footer>

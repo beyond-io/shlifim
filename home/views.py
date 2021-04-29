@@ -37,6 +37,7 @@ def tags(request):
         tags = Tag.tags_feed()
     return render(request, 'home/tags.html', {'tags': tags})
 
+
 def addAnswer(form, profile, question):
     if form.is_valid():
         form.instance.profile = profile
