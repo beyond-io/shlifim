@@ -62,7 +62,7 @@
 	<div class="answer-display mt-1 col-md-10">
 	<div class="row">
 		<div class="asnwer-conent col-md-10">
-			<p>{{ answer.content }}</p>
+			<p>{{ answer.content | safe }}</p>
 			</div>
 		<div class="answer-meta-data right pl-4 col-md-2 container">
 		<div class="col-12">
@@ -106,4 +106,27 @@
  </div>  
  </main>
   </body>
+
+<footer class="container">
+	{% if request.user.is_authenticated %}
+	<div class="add-comment">
+	  <form method="POST" action="." class="commenting-form">
+		{% csrf_token %}
+		<div class="col-md-12">
+		  <div >
+			{{ form }}
+			{{ form.media }}
+		  </div>
+		  <div >
+			<button type="submit" class="btn btn-secondary">Submit Comment</button>
+		  </div>
+		</div>
+	  </form>
+	</div>
+	{% else %}
+	<a href="#" class="btn btn-primary">Login to comment</a>
+	{% endif %}
+  </div>
+</footer>
+
 {% endblock content %}

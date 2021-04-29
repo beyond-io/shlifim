@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from ckeditor.fields import RichTextField
+from django.contrib.auth.models import User
 
 
 class Gender(models.TextChoices):
@@ -31,6 +33,13 @@ class Profile(models.Model):
 
     def __str__(self):
         return '{self.user.username}'.format(self=self)
+
+    @classmethod
+    def create(cls, username, password, email, gender='U', is_blocked=False):
+        user = User.objects.create_user(username=username, password=password, email=email)
+        profile = cls(user=user, gender=gender, is_blocked=is_blocked)
+        profile.save()
+        return profile
 
 
 class Subject(models.Model):
@@ -123,7 +132,7 @@ class Question(models.Model):
 class Answer(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    content = models.TextField()
+    content = RichTextField(blank=True, null=True)
     publish_date = models.DateTimeField(default=timezone.now)
     likes_count = models.IntegerField(default=0)
     dislikes_count = models.IntegerField(default=0)
@@ -141,6 +150,11 @@ class Answer(models.Model):
 
     def set_is_edited(self, newVal):
         self.is_edited = newVal
+
+    @property
+    def show_content(self):
+        from django.utils.html import strip_tags
+        return strip_tags(self.content)
 
 
 class Tag(models.Model):
