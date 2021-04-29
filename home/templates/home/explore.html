@@ -14,7 +14,7 @@
 	<div class=" question-display p-2 row m-0 border">
 	    <img class="subject-img" src="{% get_static_prefix %}home\subjects-images\{{question.subject|lower}}.png">
             <div class="col-3">
-                <a style="color:#6FB5EE" href="#">{{question.title }}</a>
+                <a style="color:#6FB5EE" href="{% url 'question-detail' question.id %}">{{question.title }}</a>
             </div>
             <div class="col">
                 <span>{{ question.subject }} ,{{ question.sub_subject }}</span>
