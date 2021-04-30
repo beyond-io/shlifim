@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import Question, Tag
+from .forms import QuestionForm
 
 
 def about(request):
@@ -30,3 +31,14 @@ def tags(request):
     else:
         tags = Tag.tags_feed()
     return render(request, 'home/tags.html', {'tags': tags})
+
+
+def new_question(request):
+    form = QuestionForm
+    if request.method == 'POST':
+        questForm = QuestionForm(request.POST)
+        if questForm.is_valid():
+            questForm = questForm.save(commit=False)
+            questForm.profile = request.profile
+            questForm.save()
+    return render(request, 'home/questions/new_question.html', {'form': form, 'title': 'New Question'})
