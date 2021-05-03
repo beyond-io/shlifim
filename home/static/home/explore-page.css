@@ -1,0 +1,24 @@
+
+.subject-img{
+	float:left;
+	width: 120px;
+	height: 100px;
+	margin: 15px;
+}
+
+.question-display{
+  background-color: #f3ebe6;
+}
+
+.shlifim-btn{
+  background-color: #A9D4D9;
+}
+
+.landing-bg{
+	background-color: #f2dccb;
+}
+
+.collapsed-bg
+{
+    background-color: #f3ebe6;
+}

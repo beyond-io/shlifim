@@ -119,6 +119,9 @@ class Question(models.Model):
     def get_question_title(self):
         return str(self.subject) + '-' + self.title
 
+    def get_answers_num(self):
+        return self.answer_set.count()
+
 
 class Answer(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
