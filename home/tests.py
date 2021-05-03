@@ -1,5 +1,7 @@
 from home.models import Profile, Subject, Question, Tag, Answer, Question_Tag
 from django.contrib.auth.models import User
+
+
 from django.utils import timezone
 from datetime import datetime
 from django.db.models.query import QuerySet
@@ -205,3 +207,9 @@ class TestTagsPage:
         url = reverse('tags')
         response = client.get(url)
         return response
+
+
+@pytest.mark.django_db
+def test_login(client):
+    response = client.get('/login')
+    assert response.status_code == 301
