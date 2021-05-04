@@ -56,7 +56,7 @@
 			  <ul class="nav navbar-nav" >
 				<li><p class="nav-item m-2"><b>Hello {{user.username}}</b></p></li>
 				<li><a class="nav-item nav-link m-2 " href="#"><b>Profile</b></a></li>
-				<li><a class="nav-item nav-link m-2" href="#"><b>Logout</b></a></li>
+				<li><a class="nav-item nav-link m-2" href="{% url 'logout' %}"><b>Logout</b></a></li>
 			  </ul>
 			  {% else %}
 			  <p class="nav-item nav-link m-2"><b>Hello visitor</b></p>
