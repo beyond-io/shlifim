@@ -133,3 +133,6 @@ dmypy.json
 
 #nohup.out
 nohup.out
+
+# idea
+.idea/
