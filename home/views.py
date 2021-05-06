@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Question, Tag
 
 
@@ -11,7 +11,7 @@ def landingpage(request):
 
 
 def displayQuestion(request, **kwargs):
-    question = Question.objects.all().get(id=kwargs['pk'])
+    question = get_object_or_404(Question, id=kwargs['pk'])
     sortAnsBy = request.GET["sortanswersby"] if 'sortanswersby' in request.GET else ''
     context = {
         "question": question,
