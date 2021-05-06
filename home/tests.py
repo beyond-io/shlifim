@@ -188,6 +188,18 @@ class TestDisplayQuestionFeature:
             for check, excepted in expectedPairs:
                 assert str(response.context[check]).startswith(excepted)
 
+        @pytest.mark.django_db
+        def test_invalid_question_url(self, client):
+            url = reverse('question-detail', args=[999])
+            response = client.get(url)
+            assert response.status_code == 404
+
+        @pytest.mark.django_db
+        def test_invalid_answersort_url(self, client):
+            url = '/explore/question_1/?sortanswersby=BAD'
+            response = client.get(url)
+            assert response.status_code == 404
+
 
 class TestTagsPage:
     @pytest.mark.django_db
