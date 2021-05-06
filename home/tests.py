@@ -133,7 +133,7 @@ class TestDisplayQuestionFeature:
             assert(prev_is_edited_val != answers[0].is_edited)
 
         @pytest.mark.django_db
-        @pytest.mark.parametrize('filterType, expected', [('date', 'Answer 2'), ('votes', 'Answer 1')])
+        @pytest.mark.parametrize(('filterType, expected'), [('date', 'Answer 2'), ('votes', 'Answer 1')])
         def test_answers_feed(self, filterType, expected, answers):
             """
             Tests if get_answers_feed returns queryset of all the answers of
@@ -158,7 +158,7 @@ class TestDisplayQuestionFeature:
         @pytest.mark.django_db
         @pytest.fixture
         def response(self, client):
-            url = reverse('question-detail', args=[2])
+            url = reverse('question-detail', args=[14])
             response = client.get(url)
             return response
 
@@ -179,14 +179,24 @@ class TestDisplayQuestionFeature:
             Testing if the context passed to the view contains the right contents
             '''
             expectedPairs = [
-                ('question', 'Question #2 : question from bible course'),
-                ('answers', '<QuerySet [<Answer: IDK>]>'),
-                ('answersCount', '1'),
-                ('tags', ''),
-                ('title', 'Bible-question from bible course')
+                ('question', 'Question #14 : g forwards, it was even later than ( 28/04/2021 23:14 )'),
+                ('answers', '<QuerySet [<Answer: Answer B>, <Answer: Answer A>,\
+ <Answer: Popular Answer>, <Answer: Old Answer>]>'),
+                ('answersCount', '4'),
+                ('tags', '<QuerySet [{\'id\': 3, \'tag_name\': \'Bagrut_Exam\'},\
+ {\'id\': 4, \'tag_name\': \'Hebrew\'}]>'),
+                ('title', 'History-g forwards, it was even later than')
                 ]
-            for check, excepted in expectedPairs:
-                assert str(response.context[check]).startswith(excepted)
+            for check, expected in expectedPairs:
+                assert str(response.context[check]) == expected
+
+        @pytest.mark.parametrize(('filterType, expected'), [('date', 'Answer B'), ('votes', 'Popular Answer')])
+        @pytest.mark.django_db
+        def test_sorting_answers(self, client, filterType, expected):
+            url = f'/explore/question_14/?sortanswersby={filterType}'
+            response = client.get(url)
+            answer = response.context['answers'].first()
+            assert str(answer.content) == expected
 
 
 class TestTagsPage:
@@ -196,8 +206,8 @@ class TestTagsPage:
 
     @pytest.mark.django_db
     def test_tags_page_context(self, tags_response):
-        excepted = '<QuerySet [<Tag: 5th_Grade>, <Tag: Bagrut_Exam>, <Tag: Hebrew>, <Tag: Pitagoras>]>'
-        assert str(tags_response.context['tags']) == excepted
+        expected = '<QuerySet [<Tag: 5th_Grade>, <Tag: Bagrut_Exam>, <Tag: Hebrew>, <Tag: Pitagoras>]>'
+        assert str(tags_response.context['tags']) == expected
 
     @pytest.mark.django_db
     def test_tags_page_template(self, tags_response):
