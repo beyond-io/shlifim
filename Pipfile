@@ -11,6 +11,7 @@ pytest-django = "*"
 [packages]
 django = "*"
 pytest = "*"
+django-ckeditor = "*"
 
 [requires]
 python_version = "3.8"

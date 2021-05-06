@@ -7,6 +7,7 @@ from django.urls import reverse
 from pytest_django.asserts import assertTemplateUsed
 import pytest
 import pytz
+from django.contrib.auth import authenticate
 
 
 class TestManyToManyFeature:
@@ -54,24 +55,6 @@ class TestManyToManyFeature:
         assert Tag.tags_feed('testtesttesttest').count() == 0
 
     @pytest.fixture
-    def question_test_data(self):
-        user = User.objects.get(username='Rebecca')
-        profile = Profile.objects.get(user=user)
-        subject = Subject.objects.get(subject_name='Physics')
-        question = Question(profile=profile,
-                            title='Question test data',
-                            content='Will this question test data pass?',
-                            publish_date=timezone.now(),
-                            subject=subject,
-                            sub_subject=None,
-                            grade='10',
-                            book=None,
-                            book_page=None,
-                            is_edited=False)
-        question.save()
-        return question
-
-    @pytest.fixture
     def tag_test_data(self):
         tag = Tag(tag_name='test_tag_1')
         tag.save()
@@ -87,6 +70,38 @@ class TestManyToManyFeature:
         new_pair.tag = test_tag
         new_pair.save()
         return test_tag
+
+
+@pytest.fixture
+def question_test_data():
+    user = User.objects.get(username='Rebecca')
+    profile = Profile.objects.get(user=user)
+    subject = Subject.objects.get(subject_name='Physics')
+    question = Question(profile=profile,
+                        title='Question test data',
+                        content='Will this question test data pass?',
+                        publish_date=timezone.now(),
+                        subject=subject,
+                        sub_subject=None,
+                        grade='10',
+                        book=None,
+                        book_page=None,
+                        is_edited=False)
+    question.save()
+    return question
+
+
+@pytest.fixture
+def profile():
+    profile = Profile.create(username="test_user", password="testtest", email="test@test.com")
+    return profile
+
+
+@pytest.mark.django_db
+def test_default_params_profile(profile):
+    assert profile.user.id >= 0  # check if user saved successfully and get an id
+    assert profile.gender == 'U'  # default gender is U
+    assert profile.is_blocked is False
 
 
 class TestDisplayQuestionFeature:
@@ -208,3 +223,60 @@ class TestTagsPage:
         url = reverse('tags')
         response = client.get(url)
         return response
+
+
+@pytest.fixture
+def authenticated_user(client, request):
+    username = 'Lior'
+    password = 'LiorLior'
+    client.login(username=username, password=password)
+    user = authenticate(request, username=username, password=password)
+    return user
+
+
+@pytest.mark.django_db
+class TestAddAnswer:
+    @pytest.fixture
+    def comment_content(self):
+        return {'content': 'test'}
+
+    def test_post_redirect(self, client, question_test_data, authenticated_user, comment_content):
+        response = client.post(f'/explore/question_{question_test_data.id}/', data=comment_content)
+        assert (response.status_code == 302)  # check that redirect
+        # redirect back to the same display question page
+        assert (response.url == f'/explore/question_{question_test_data.id}/')
+
+    def test_add_answer_post(self, authenticated_user, client, question_test_data, comment_content):
+        client.post(f'/explore/question_{question_test_data.id}/', data=comment_content)
+        answers_feed = question_test_data.get_answers_feed()
+        assert (answers_feed.first().id)  # check if there is answer to the question_test_data
+        assert (answers_feed.first().content == 'test')  # answer content saved as expected.
+        assert (answers_feed.first().profile.user == authenticated_user)  # answer profile is the user that posted.
+
+    def test_html_authenticated_user_form_visible(self, authenticated_user, question_test_data, client):
+        response = client.get(f'/explore/question_{question_test_data.id}/')
+        # comment-form is the div id of the comment-form, should be visible (because it is authenticated user)
+        assert "comment-form" in str(response.content)
+        # not-authenticated is the div for login button for not authenticated user, should be hidden
+        assert "not-authenticated" not in str(response.content)
+
+    def test_html_not_authenticated_user_form_visible(self, question_test_data, client):
+        response = client.get(f'/explore/question_{question_test_data.id}/')
+        # should be hidden for not authenticated user
+        assert "comment-form" not in str(response.content)
+        # login button for not authenticated user should be visible
+        assert "not-authenticated" in str(response.content)
+
+        def test_default_params_answer(profile, question_test_data):
+            answer = Answer(profile=profile, question=question_test_data, content='test')
+            assert answer.likes_count == 0
+            assert answer.dislikes_count == 0
+            assert answer.is_edited is False
+
+        def test_get_answers():
+            out = Answer.get_answers_by_date()
+            assert all(isinstance(a, Answer) for a in out)
+            assert set([
+                (2, 2, 'IDK'),
+                (1, 1, 'pretty sure its 2 but I suggesting you to check with another resources '),
+            ]).issubset(list(out.values_list('profile', 'question', 'content')))
