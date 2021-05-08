@@ -1,0 +1,16 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block content %}
+
+<body class="main-bg">
+    <div class="newfrm">
+        <p class="newmsg">Please add a new question : </p>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Post">
+        </form>
+    </div>
+</body>
+
+{% endblock content %}
