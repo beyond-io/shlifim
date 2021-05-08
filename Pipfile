@@ -11,6 +11,7 @@ pytest-django = "*"
 [packages]
 django = "*"
 pytest = "*"
+mock = "*"
 
 [requires]
 python_version = "3.8"
